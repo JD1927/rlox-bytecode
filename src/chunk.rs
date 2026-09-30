@@ -25,6 +25,7 @@ impl From<OpCode> for u8 {
 pub struct Chunk {
     pub code: Vec<u8>,
     pub constants: ValueArray,
+    pub lines: Vec<usize>,
 }
 
 impl Chunk {
@@ -32,15 +33,18 @@ impl Chunk {
         Self {
             code: Vec::new(),
             constants: ValueArray::new(),
+            lines: Vec::new(),
         }
     }
 
-    pub fn write(&mut self, byte: u8) {
+    pub fn write(&mut self, byte: u8, line: usize) {
         self.code.push(byte);
+        self.lines.push(line);
     }
 
-    pub fn write_op_code(&mut self, op_code: OpCode) {
+    pub fn write_op_code(&mut self, op_code: OpCode, line: usize) {
         self.code.push(op_code.into());
+        self.lines.push(line);
     }
 
     pub fn free(&mut self) {
@@ -65,6 +69,12 @@ impl Chunk {
 
     fn disassemble_instruction(&self, offset: usize) -> usize {
         print!("{offset:04} ");
+
+        if offset > 0 && self.lines[offset] == self.lines[offset - 1] {
+            print!("   | ");
+        } else {
+            print!("{:4} ", self.lines[offset]);
+        }
 
         let instruction: OpCode = self.code[offset].into();
         match instruction {
