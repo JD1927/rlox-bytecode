@@ -1,5 +1,6 @@
 pub type Value = f64;
 
+#[derive(Clone, Debug)]
 pub struct ValueArray {
     values: Vec<Value>,
 }
@@ -15,6 +16,10 @@ impl ValueArray {
 
     pub fn free(&mut self) {
         self.values = Vec::new();
+    }
+
+    pub fn get(&self, value: usize) -> Value {
+        self.values[value]
     }
 
     pub fn count(&self) -> u8 {

@@ -22,6 +22,23 @@ impl From<OpCode> for u8 {
     }
 }
 
+impl From<usize> for OpCode {
+    fn from(code: usize) -> Self {
+        match code {
+            0 => OpCode::Constant,
+            1 => OpCode::Return,
+            _ => panic!("Invalid opcode"),
+        }
+    }
+}
+
+impl From<OpCode> for usize {
+    fn from(code: OpCode) -> Self {
+        code as usize
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Chunk {
     pub code: Vec<u8>,
     pub constants: ValueArray,
@@ -47,6 +64,14 @@ impl Chunk {
         self.lines.push(line);
     }
 
+    pub fn get_code(&self, code: usize) -> u8 {
+        self.code[code]
+    }
+
+    pub fn get_constant(&self, value: usize) -> Value {
+        self.constants.get(value)
+    }
+
     pub fn free(&mut self) {
         self.code = Vec::new();
         self.constants.free();
@@ -67,7 +92,7 @@ impl Chunk {
         self.constants.count() - 1_u8
     }
 
-    fn disassemble_instruction(&self, offset: usize) -> usize {
+    pub fn disassemble_instruction(&self, offset: usize) -> usize {
         print!("{offset:04} ");
 
         if offset > 0 && self.lines[offset] == self.lines[offset - 1] {
