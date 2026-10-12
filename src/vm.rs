@@ -1,5 +1,6 @@
 use crate::{
     chunk::{Chunk, OpCode},
+    compiler::Compiler,
     value::Value,
 };
 
@@ -10,8 +11,8 @@ pub struct VM {
 
 pub enum InterpretResult {
     Ok,
-    // CompileErrors,
-    // RuntimeErrors,
+    CompileErrors,
+    RuntimeErrors,
 }
 
 impl VM {
@@ -22,8 +23,10 @@ impl VM {
         }
     }
 
-    pub fn interpret(&mut self, chunk: &Chunk) -> InterpretResult {
-        self.run(chunk)
+    pub fn interpret(&mut self, source: &str) -> InterpretResult {
+        let mut compiler = Compiler::new();
+        compiler.compile(source);
+        InterpretResult::Ok
     }
 
     pub fn run(&mut self, chunk: &Chunk) -> InterpretResult {
@@ -45,7 +48,7 @@ impl VM {
                 for slot in &self.stack {
                     print!("[ {slot} ]");
                 }
-                println!(" ");
+                println!();
                 chunk.disassemble_instruction(self.ip);
             }
 
@@ -84,7 +87,10 @@ impl VM {
         chunk.get_constant(index)
     }
 
-    pub fn free(&mut self) {}
+    pub fn free(&mut self) {
+        self.reset_stack();
+        self.ip = 0;
+    }
 
     pub fn reset_stack(&mut self) {
         self.stack = Vec::new();

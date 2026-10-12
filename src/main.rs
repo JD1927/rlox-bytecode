@@ -1,37 +1,65 @@
 mod chunk;
+mod compiler;
+mod scanner;
+mod token;
 mod value;
 mod vm;
-use crate::{
-    chunk::{Chunk, OpCode},
-    vm::VM,
+use std::{
+    env::args,
+    io::{self, Write},
+    process::exit,
 };
 
+use crate::vm::{InterpretResult, VM};
+
 fn main() {
+    let args: Vec<String> = args().collect();
     let mut vm: VM = VM::new();
-    let mut chunk: Chunk = Chunk::new();
 
-    let constant: u8 = chunk.add_constant(1.2);
-    chunk.write_op_code(OpCode::Constant, 123);
-    chunk.write(constant, 123);
+    match args.len() {
+        1 => repl(&mut vm),
+        2 => run_file(&mut vm, &args[1]).expect("Could not run file!"),
+        _ => {
+            eprintln!("Usage: r-lox bytecode [script]");
+            exit(64);
+        }
+    }
 
-    let constant = chunk.add_constant(3.4);
-    chunk.write_op_code(OpCode::Constant, 123);
-    chunk.write(constant, 123);
-
-    chunk.write_op_code(OpCode::Add, 123);
-
-    let constant = chunk.add_constant(5.6);
-    chunk.write_op_code(OpCode::Constant, 123);
-    chunk.write(constant, 123);
-
-    chunk.write_op_code(OpCode::Divide, 123);
-    chunk.write_op_code(OpCode::Negate, 123);
-
-    chunk.write_op_code(OpCode::Return, 123);
-    chunk.disassemble("test chunk");
-
-    vm.interpret(&chunk);
-
-    chunk.free();
     vm.free();
+}
+
+fn run_file(vm: &mut VM, path: &str) -> io::Result<()> {
+    let source = std::fs::read_to_string(path)?;
+    let result = vm.interpret(&source);
+    match result {
+        InterpretResult::CompileErrors => exit(65),
+        InterpretResult::RuntimeErrors => exit(70),
+        InterpretResult::Ok => exit(0),
+    }
+}
+
+fn repl(vm: &mut VM) {
+    let mut line = String::new();
+    loop {
+        print!("> ");
+
+        if io::stdout().flush().is_err() {
+            break;
+        }
+
+        line.clear();
+
+        match io::stdin().read_line(&mut line) {
+            Ok(0) => {
+                println!();
+                break;
+            }
+            Ok(_) => {
+                vm.interpret(&line);
+            }
+            Err(_) => {
+                break;
+            }
+        }
+    }
 }
