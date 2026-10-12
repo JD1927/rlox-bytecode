@@ -4,6 +4,11 @@ use crate::value::{Value, ValueArray};
 pub enum OpCode {
     Constant,
     Return,
+    Negate,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
 }
 
 impl From<u8> for OpCode {
@@ -11,6 +16,11 @@ impl From<u8> for OpCode {
         match code {
             0 => OpCode::Constant,
             1 => OpCode::Return,
+            2 => OpCode::Negate,
+            3 => OpCode::Add,
+            4 => OpCode::Subtract,
+            5 => OpCode::Multiply,
+            6 => OpCode::Divide,
             _ => panic!("Invalid opcode"),
         }
     }
@@ -27,6 +37,11 @@ impl From<usize> for OpCode {
         match code {
             0 => OpCode::Constant,
             1 => OpCode::Return,
+            2 => OpCode::Negate,
+            3 => OpCode::Add,
+            4 => OpCode::Subtract,
+            5 => OpCode::Multiply,
+            6 => OpCode::Divide,
             _ => panic!("Invalid opcode"),
         }
     }
@@ -105,6 +120,11 @@ impl Chunk {
         match instruction {
             OpCode::Constant => self.constant_instruction("OP_CONSTANT", offset),
             OpCode::Return => self.simple_instruction("OP_RETURN", offset),
+            OpCode::Negate => self.simple_instruction("OP_NEGATE", offset),
+            OpCode::Add => self.simple_instruction("OP_ADD", offset),
+            OpCode::Subtract => self.simple_instruction("OP_SUBTRACT", offset),
+            OpCode::Multiply => self.simple_instruction("OP_MULTIPLY", offset),
+            OpCode::Divide => self.simple_instruction("OP_DIVIDE", offset),
         }
     }
 

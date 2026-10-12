@@ -27,6 +27,17 @@ impl VM {
     }
 
     pub fn run(&mut self, chunk: &Chunk) -> InterpretResult {
+        // This macro helps avoid repeating a lot of logic and also using functions as params
+        macro_rules! binary_op {
+            ($self:ident, $op:tt) => {
+                {
+                    let b = $self.stack.pop().unwrap();
+                    let a = $self.stack.pop().unwrap();
+                    $self.stack.push(a $op b);
+                }
+            };
+        }
+
         loop {
             #[cfg(feature = "debug_trace_execution")]
             {
@@ -34,7 +45,7 @@ impl VM {
                 for slot in &self.stack {
                     print!("[ {slot} ]");
                 }
-                println!("");
+                println!(" ");
                 chunk.disassemble_instruction(self.ip);
             }
 
@@ -46,9 +57,17 @@ impl VM {
                     self.stack.push(constant);
                 }
                 OpCode::Return => {
-                    println!("{}", self.stack.pop().unwrap_or(-1.0));
+                    println!("{}", self.stack.pop().unwrap());
                     break InterpretResult::Ok;
                 }
+                OpCode::Negate => {
+                    let last = self.stack.pop().unwrap();
+                    self.stack.push(-last);
+                }
+                OpCode::Add => binary_op!(self, +),
+                OpCode::Subtract => binary_op!(self, -),
+                OpCode::Multiply => binary_op!(self, *),
+                OpCode::Divide => binary_op!(self, /),
             }
         }
     }
