@@ -5,6 +5,7 @@ use crate::{
 
 pub struct VM {
     pub ip: usize,
+    pub stack: Vec<Value>,
 }
 
 pub enum InterpretResult {
@@ -15,7 +16,10 @@ pub enum InterpretResult {
 
 impl VM {
     pub fn new() -> Self {
-        Self { ip: 0 }
+        Self {
+            ip: 0,
+            stack: Vec::new(),
+        }
     }
 
     pub fn interpret(&mut self, chunk: &Chunk) -> InterpretResult {
@@ -25,15 +29,26 @@ impl VM {
     pub fn run(&mut self, chunk: &Chunk) -> InterpretResult {
         loop {
             #[cfg(feature = "debug_trace_execution")]
-            chunk.disassemble_instruction(self.ip);
+            {
+                print!("          ");
+                for slot in &self.stack {
+                    print!("[ {slot} ]");
+                }
+                println!("");
+                chunk.disassemble_instruction(self.ip);
+            }
+
             let instruction: OpCode = self.read_byte(chunk);
 
             match instruction {
                 OpCode::Constant => {
                     let constant = self.read_constant(chunk);
-                    println!("{}", constant);
+                    self.stack.push(constant);
                 }
-                OpCode::Return => break InterpretResult::Ok,
+                OpCode::Return => {
+                    println!("{}", self.stack.pop().unwrap_or(-1.0));
+                    break InterpretResult::Ok;
+                }
             }
         }
     }
@@ -51,4 +66,8 @@ impl VM {
     }
 
     pub fn free(&mut self) {}
+
+    pub fn reset_stack(&mut self) {
+        self.stack = Vec::new();
+    }
 }
