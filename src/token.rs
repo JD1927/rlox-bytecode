@@ -1,11 +1,11 @@
-#[derive(Debug, Clone)]
-pub struct Token {
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Token<'a> {
     pub token_type: TokenType,
     pub line: usize,
-    pub lexeme: String,
+    pub lexeme: &'a str,
 }
-impl Token {
-    pub fn new(token_type: TokenType, line: usize, lexeme: String) -> Self {
+impl<'a> Token<'a> {
+    pub fn new(token_type: TokenType, line: usize, lexeme: &'a str) -> Self {
         Self {
             line,
             token_type,
@@ -14,7 +14,7 @@ impl Token {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Single-character Tokens.
     LeftParen,

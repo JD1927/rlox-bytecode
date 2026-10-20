@@ -18,7 +18,7 @@ impl Compiler {
             } else {
                 print!("    | ")
             }
-            println!("{:10?} '{}", token.token_type, token.lexeme);
+            println!("{:10?} '{}'", token.token_type, token.lexeme);
 
             if token.token_type == TokenType::Eof {
                 break;
