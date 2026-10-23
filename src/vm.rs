@@ -24,9 +24,19 @@ impl VM {
     }
 
     pub fn interpret(&mut self, source: &str) -> InterpretResult {
+        let mut chunk = Chunk::new();
         let mut compiler = Compiler::new();
-        compiler.compile(source);
-        InterpretResult::Ok
+
+        if !compiler.compile(source, &mut chunk) {
+            chunk.free();
+            return InterpretResult::CompileErrors;
+        }
+
+        self.ip = 0;
+        let result = self.run(&chunk);
+
+        chunk.free();
+        result
     }
 
     pub fn run(&mut self, chunk: &Chunk) -> InterpretResult {
@@ -93,6 +103,6 @@ impl VM {
     }
 
     pub fn reset_stack(&mut self) {
-        self.stack = Vec::new();
+        self.stack.clear();
     }
 }

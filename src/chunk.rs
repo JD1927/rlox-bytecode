@@ -53,7 +53,7 @@ impl From<OpCode> for usize {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Chunk {
     pub code: Vec<u8>,
     pub constants: ValueArray,
@@ -102,9 +102,9 @@ impl Chunk {
         }
     }
 
-    pub fn add_constant(&mut self, value: Value) -> u8 {
+    pub fn add_constant(&mut self, value: Value) -> usize {
         self.constants.write(value);
-        self.constants.count() - 1_u8
+        self.constants.count() - 1
     }
 
     pub fn disassemble_instruction(&self, offset: usize) -> usize {

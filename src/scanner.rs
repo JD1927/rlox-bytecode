@@ -1,5 +1,6 @@
 use crate::token::{Token, TokenType};
 
+#[derive(Default)]
 pub struct Scanner<'a> {
     pub source: &'a str,
     pub line: usize,

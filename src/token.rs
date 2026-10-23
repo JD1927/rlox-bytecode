@@ -4,6 +4,17 @@ pub struct Token<'a> {
     pub line: usize,
     pub lexeme: &'a str,
 }
+
+impl<'a> Default for Token<'a> {
+    fn default() -> Self {
+        Token {
+            token_type: TokenType::Nil,
+            line: 0,
+            lexeme: "",
+        }
+    }
+}
+
 impl<'a> Token<'a> {
     pub fn new(token_type: TokenType, line: usize, lexeme: &'a str) -> Self {
         Self {
@@ -11,6 +22,14 @@ impl<'a> Token<'a> {
             token_type,
             lexeme,
         }
+    }
+
+    pub fn is_not_error(&self) -> bool {
+        self.token_type != TokenType::Error
+    }
+
+    pub fn has_same_token_type(&self, token_type: TokenType) -> bool {
+        self.token_type == token_type
     }
 }
 
