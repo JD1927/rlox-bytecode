@@ -132,7 +132,13 @@ impl<'a> Compiler<'a> {
     }
 
     fn end_compiler(&mut self) {
-        self.emit_return()
+        self.emit_return();
+        #[cfg(feature = "debug_trace_execution")]
+        {
+            if !self.parser.had_error {
+                self.chunk.disassemble("code");
+            }
+        }
     }
 
     fn emit_return(&mut self) {
