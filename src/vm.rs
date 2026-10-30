@@ -25,9 +25,9 @@ impl VM {
 
     pub fn interpret(&mut self, source: &str) -> InterpretResult {
         let mut chunk = Chunk::new();
-        let mut compiler = Compiler::new();
+        let mut compiler = Compiler::new(&mut chunk);
 
-        if !compiler.compile(source, &mut chunk) {
+        if !compiler.compile(source) {
             chunk.free();
             return InterpretResult::CompileErrors;
         }

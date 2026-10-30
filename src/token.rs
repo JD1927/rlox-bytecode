@@ -33,7 +33,7 @@ impl<'a> Token<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TokenType {
     // Single-character Tokens.
     LeftParen,
